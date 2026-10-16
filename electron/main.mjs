@@ -56,6 +56,7 @@ import { spawnSync } from "node:child_process";
 
 import { isExternalBrowsableUrl, isLoopbackAppUrl } from "./lib/window-url-policy.mjs";
 import { resolveBundledRuntimeDir } from "./lib/bundled-runtime-dir.mjs";
+import { registerWindowAppearanceIpc } from "./lib/window-appearance.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -587,6 +588,12 @@ ipcMain.handle("boot-log:quit", (event) => {
 ipcMain.on("window:full-screen:get", (event) => {
   const win = BrowserWindow.fromWebContents(event.sender);
   event.returnValue = win !== null && !win.isDestroyed() && win.isFullScreen();
+});
+
+registerWindowAppearanceIpc({
+  ipcMain,
+  nativeTheme,
+  getMainWindow: () => mainWin,
 });
 
 // ── Backend stack ─────────────────────────────────────────────────────────────

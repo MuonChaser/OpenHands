@@ -17,6 +17,9 @@
  */
 const { contextBridge, ipcRenderer } = require("electron");
 
+// Mirrors lib/window-appearance.mjs; sandboxed preloads cannot import ESM.
+const WINDOW_COLOR_SCHEME_CHANNEL = "window:color-scheme:set";
+
 // Read once here, before any page script runs, and kept current from the
 // pushed transitions: the renderer subscribes long after load, and a reload of
 // a fullscreen window reports no transition at all.
@@ -29,6 +32,9 @@ ipcRenderer.on("window:full-screen", (_event, value) => {
 
 contextBridge.exposeInMainWorld("desktopShell", {
   platform: process.platform,
+  /** Mirror the selected Canvas palette's appearance, not a separate preference. */
+  setColorScheme: (appearance) =>
+    ipcRenderer.send(WINDOW_COLOR_SCHEME_CHANNEL, appearance),
   /** The window's current fullscreen state. */
   isFullScreen: () => isFullScreen,
   /**

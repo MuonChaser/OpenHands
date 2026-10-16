@@ -1,3 +1,4 @@
+import { setDesktopColorScheme } from "#/utils/desktop-shell";
 import { type ColorThemeKey } from "./types";
 import { COLOR_THEMES, DEFAULT_COLOR_THEME } from "./definitions";
 
@@ -118,6 +119,7 @@ export function applyColorTheme(key: ColorThemeKey): void {
 
   activeColorTheme = key;
   document.documentElement.style.colorScheme = COLOR_THEMES[key].appearance;
+  setDesktopColorScheme(COLOR_THEMES[key].appearance);
   for (const listener of colorThemeListeners) listener();
 }
 
@@ -131,4 +133,5 @@ export const COLOR_THEME_BOOTSTRAP_SCRIPT = `(() => {
   style.textContent = themes[key].css;
   document.head.appendChild(style);
   document.documentElement.style.colorScheme = themes[key].appearance;
+  window.desktopShell?.setColorScheme?.(themes[key].appearance);
 })();`;

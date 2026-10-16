@@ -17,7 +17,47 @@ describe("color themes", () => {
     window.localStorage.clear();
     applyColorTheme(DEFAULT_COLOR_THEME);
   });
-  afterEach(cleanup);
+  afterEach(() => {
+    cleanup();
+    delete window.desktopShell;
+  });
+
+  it.each(AVAILABLE_COLOR_THEMES)(
+    "synchronizes the desktop appearance when selecting $label",
+    ({ key }) => {
+      let nativeAppearance = "unset";
+      window.desktopShell = {
+        platform: "win32",
+        setColorScheme: (appearance) => {
+          nativeAppearance = appearance;
+        },
+      };
+
+      setColorTheme(key);
+
+      expect(nativeAppearance).toBe(document.documentElement.style.colorScheme);
+      expect(readPersistedColorTheme()).toBe(key);
+    },
+  );
+
+  it.each(["light-plus", "solarized-light", "openhands-neutral"] as const)(
+    "restores the desktop appearance for %s before React mounts",
+    (key) => {
+      let nativeAppearance = "unset";
+      window.desktopShell = {
+        platform: "win32",
+        setColorScheme: (appearance) => {
+          nativeAppearance = appearance;
+        },
+      };
+      localStorage.setItem("openhands-color-theme", key);
+      document.getElementById("oh-color-theme-override")?.remove();
+
+      window.eval(COLOR_THEME_BOOTSTRAP_SCRIPT);
+
+      expect(nativeAppearance).toBe(document.documentElement.style.colorScheme);
+    },
+  );
 
   it("offers both light palettes", () => {
     expect(AVAILABLE_COLOR_THEMES).toEqual(

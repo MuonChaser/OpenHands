@@ -8,6 +8,7 @@
 
 interface DesktopShellBridge {
   platform?: string;
+  setColorScheme?: (appearance: "dark" | "light") => void;
   isFullScreen?: () => boolean;
   onFullScreenChange?: (cb: (isFullScreen: boolean) => void) => () => void;
 }
@@ -20,6 +21,11 @@ declare global {
 
 function getDesktopShell(): DesktopShellBridge | undefined {
   return typeof window === "undefined" ? undefined : window.desktopShell;
+}
+
+/** Synchronize native window chrome; a browser tab owns no desktop window. */
+export function setDesktopColorScheme(appearance: "dark" | "light"): void {
+  getDesktopShell()?.setColorScheme?.(appearance);
 }
 
 /**
